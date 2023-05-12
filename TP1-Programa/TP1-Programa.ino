@@ -8,25 +8,28 @@ int display7c[10]= {0x3f, //Codigo del 0
                     0x7d,
                     0x07,
                     0x7f,
-                    0x67}; //Codigo del 9
-byte valor; //Almacena el dato de los pulsadores
-int num = 0;  //Variable que almacena el numero a mostrar                   
+                    0x67}; //Codigo del 9 
+int num = 95;  //Variable que almacena numuero a motstrar
 int unid; //Variable que almacena la unidad 
 int dec;  //Variable que almacena la decena 
-//Delcaración de Los pines del display
-byte a=2;
+
+//Declaración de Los pines del display
+byte a=2; //Pin 2 de ARDUINO
 byte b=3;
 byte c=4;
 byte d=5;
 byte e=6;
 byte f=7;
-byte g=8;
+byte g=8; //Pin 8 de ARDUINO
+
 //Delcaración de los pines de control
-byte disp1 = 9;
-byte disp2 = 10;
+byte disp1 = 9;  // Pin 9 de ARDUINO
+byte disp2 = 10; // Pin 10 de ARDUINO
+
 //Delcaración de los pines de las teclas
-byte tec1 = 11;
-byte tec2 = 12;
+byte tec1 = 11; // Pin 11 de ARDUINO, + +
+byte tec2 = 12; // Pin 12 de ARDUINO, - -
+
 //Función que coloca en el puerto de salida los bits comenzando
 // desde el pin ini hasta el pin fin
 void puerto(int bits,int ini,int fin){
@@ -35,31 +38,27 @@ void puerto(int bits,int ini,int fin){
     digitalWrite(i,bitRead(bits,i-ini));
   }
 }
+
 //Función encargada de la multiplexación
-void mostrar(int num) //Rutina mostrar
+void mostrar() 
 {
-  if (num<=9){
-    digitalWrite(disp1,HIGH); //Energiza la SALIDA DIGITAL (5V)
-      puerto(i,2,8);
-  }
-  else{
-    dec  = num/10;
-    unid = num%10;
-    //Rutina de Multiplexación
-    digitalWrite(disp1,HIGH);  //Enciende el display de decena
-    puerto(display7c[dec],2,8); //Envia la decena al display 1
-    delay(1);               //Retardo de 1 milisegundos
-    digitalWrite(disp1,LOW);  //Apaga el display de decena
-    digitalWrite(disp1,HIGH);  //Enciende el display de unidades
-    puerto(display7c[unid],2,8); ////Envia la unidad al display 2
-    delay(1);               //Retardo de 1 milisegundos
-    digitalWrite(disp2,LOW);   //Apaga el display de unidades
-  }                  
+  unid = num % 10;
+  dec  = num / 10;
+
+  //Rutina de Multiplexación 
+  digitalWrite(disp2,HIGH);  //Energiza el display de decena
+  digitalWrite(disp1,LOW);   //Apaga la SALIDA DIGITAL (5V)
+  puerto(display7c[dec],2,8); //Envia la decena al display 2
+  delay(1);
+  digitalWrite(disp2,LOW);  // Apaga el display de decena
+  digitalWrite(disp1,HIGH); // Energiza la SALIDA DIGITAL (5V)
+  puerto(display7c[unid],2,8); ////Envia la unidad al display 1
+  delay(1);              
 }
 
 void setup() {
   //Configura los pines del display como salida
-  for(int i=a;i<=disp2;i++){
+  for(int i=a; i<=disp2; i++){
     pinMode(i,OUTPUT);
   }
   // Configura los PINES 30 y 31 como entradas
@@ -68,23 +67,24 @@ void setup() {
 }
 
 void loop() {
-  if(digitalRead(tec1)){
-    delay(1);
-    valor = 1; //Cambia el valor 
+  if(digitalRead(tec1) ==0){
+    while (digitalRead(tec1) ==0){
+      mostrar();
+    }
+    num = num +1;
+    if (num > 99){
+      num = 0;
+    }
     }
 
-  if(digitalRead(tec2)){
-    delay(1);
-    valor = 0; //Cambia el valor 
-  }
-
-  if(valor == 1){ 
-    num ++;
-    mostrar(num);
+  if(digitalRead(tec2) ==1){
+    while (digitalRead(tec2) ==1){
+      mostrar();
     }
-  else{ 
-    // num --;        
-    mostrar(num);
+    num = num -1;
+    if (num <0){
+      num = 99;
     }
-    
-}
+    mostrar();
+    }
+    }
